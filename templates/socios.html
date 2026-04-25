@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Socios</title>
+</head>
+<body>
+    <h1>Tabla de socios</h1>
+
+    <p><a href="{{ url_for('agregar') }}">Agregar nuevo socio</a></p>
+
+    <table border="1" cellpadding="8" cellspacing="0">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Edad</th>
+                <th>Peso (kg)</th>
+                <th>Estatura (m)</th>
+                <th>IMC</th>
+                <th>Estado</th>
+                <th>Fecha registro</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for socio in socios %}
+                <tr>
+                    <td>{{ socio.id }}</td>
+                    <td>{{ socio.nombre }}</td>
+                    <td>{{ socio.edad }}</td>
+                    <td>{{ socio.peso }}</td>
+                    <td>{{ socio.estatura }}</td>
+                    <td>{{ socio.imc }}</td>
+                    <td>{{ socio.estado }}</td>
+                    <td>{{ socio.fecha_registro }}</td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td colspan="8">No hay socios registrados.</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

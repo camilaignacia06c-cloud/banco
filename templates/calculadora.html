@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Ventas - CLP</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            text-align: center;
+            color: white;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        .dolar-info {
+            background: #e8f5e9;
+            border-left: 4px solid #4caf50;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+        }
+        
+        .dolar-info p {
+            color: #2e7d32;
+            font-weight: 500;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+        }
+        
+        input[type="number"],
+        input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            margin-bottom: 15px;
+            transition: border-color 0.3s;
+        }
+        
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        button {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        .resultado {
+            margin-top: 25px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            display: none;
+        }
+        
+        .resultado.mostrar {
+            display: block;
+            animation: fadeIn 0.5s;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .resultado h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+        
+        .detalle {
+            display: grid;
+            gap: 10px;
+        }
+        
+        .fila {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        
+        .fila:nth-child(even) {
+            background: #f0f0f0;
+        }
+        
+        .fila .etiqueta {
+            color: #666;
+        }
+        
+        .fila .valor {
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .fila.total {
+            background: #667eea;
+            color: white;
+            font-size: 18px;
+        }
+        
+        .fila.total .etiqueta,
+        .fila.total .valor {
+            color: white;
+        }
+        
+        .descuento-badge {
+            display: inline-block;
+            padding: 5px 10px;
+            background: #4caf50;
+            color: white;
+            border-radius: 20px;
+            font-size: 14px;
+        }
+        
+        .error {
+            background: #ffebee;
+            color: #c62828;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            display: none;
+        }
+        
+        .error.mostrar {
+            display: block;
+        }
+        
+        .tabla-descuentos {
+            margin-top: 20px;
+            padding: 15px;
+            background: #fff3e0;
+            border-radius: 8px;
+        }
+        
+        .tabla-descuentos h4 {
+            color: #e65100;
+            margin-bottom: 10px;
+        }
+        
+        .tabla-descuentos table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .tabla-descuentos th,
+        .tabla-descuentos td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .tabla-descuentos th {
+            background: #ffe0b2;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧮 Calculadora de Ventas</h1>
+        
+        <div class="card">
+            <div class="dolar-info">
+                <p>💵 Valor del dólar: ${{ dolar_actual | round(2) }} CLP</p>
+                <small>Fuente: Banco Central de Chile</small>
+            </div>
+            
+            <form id="formCalculo">
+                <label for="monto">Monto en dólares (USD)</label>
+                <input type="number" id="monto" name="monto" step="0.01" min="0" placeholder="Ingrese el monto en USD" required>
+                
+                <label for="valor_dolar">Valor del dólar (CLP) - Opcional</label>
+                <input type="number" id="valor_dolar" name="valor_dolar" step="0.01" min="0" placeholder="Dejar vacío para usar valor actual" value="{{ dolar_actual }}">
+                
+                <button type="submit">Calcular Total</button>
+            </form>
+            
+            <div class="error" id="error"></div>
+            
+            <div class="resultado" id="resultado">
+                <h3>📊 Resultado del Cálculo</h3>
+                <div class="detalle">
+                    <div class="fila">
+                        <span class="etiqueta">Monto Dólar:</span>
+                        <span class="valor" id="resDolar">-</span>
+                    </div>
+                    <div class="fila">
+                        <span class="etiqueta">Monto Venta USD:</span>
+                        <span class="valor" id="resVentaUsd">-</span>
+                    </div>
+                    <div class="fila">
+                        <span class="etiqueta">Descuento Total USD:</span>
+                        <span class="valor">
+                            <span id="resDescuento">-</span>
+                            <span class="descuento-badge" id="resPorcentaje"></span>
+                        </span>
+                    </div>
+                    <div class="fila">
+                        <span class="etiqueta">Monto Neto CLP:</span>
+                        <span class="valor" id="resNetoClp">-</span>
+                    </div>
+                    <div class="fila">
+                        <span class="etiqueta">Monto IVA (19%):</span>
+                        <span class="valor" id="resIva">-</span>
+                    </div>
+                    <div class="fila total">
+                        <span class="etiqueta">MONTO TOTAL CLP:</span>
+                        <span class="valor" id="resTotal">-</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="tabla-descuentos">
+                <h4>📋 Tabla de Descuentos</h4>
+                <table>
+                    <tr>
+                        <th>Monto USD</th>
+                        <th>Descuento</th>
+                    </tr>
+                    <tr>
+                        <td>Menos de $1.000</td>
+                        <td>0%</td>
+                    </tr>
+                    <tr>
+                        <td>$1.000 - $9.999</td>
+                        <td>10%</td>
+                    </tr>
+                    <tr>
+                        <td>$10.000 o más</td>
+                        <td>13%</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        document.getElementById('formCalculo').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const monto = document.getElementById('monto').value;
+            const valorDolar = document.getElementById('valor_dolar').value;
+            const errorDiv = document.getElementById('error');
+            const resultadoDiv = document.getElementById('resultado');
+            
+            // Limpiar errores anteriores
+            errorDiv.classList.remove('mostrar');
+            errorDiv.textContent = '';
+            
+            try {
+                const formData = new FormData();
+                formData.append('monto', monto);
+                if (valorDolar) {
+                    formData.append('valor_dolar', valorDolar);
+                }
+                
+                const response = await fetch('/calcular', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(data.error || 'Error al calcular');
+                }
+                
+                // Mostrar resultados según salida esperada
+                document.getElementById('resDolar').textContent = '$' + data.monto_dolar.toFixed(2) + ' CLP';
+                document.getElementById('resVentaUsd').textContent = '$' + data.monto_venta_usd.toFixed(2) + ' USD';
+                document.getElementById('resDescuento').textContent = '$' + data.descuento_total_usd.toFixed(2) + ' USD';
+                document.getElementById('resPorcentaje').textContent = data.porcentaje_descuento + '%';
+                document.getElementById('resNetoClp').textContent = '$' + data.monto_neto_clp.toLocaleString('es-CL', {minimumFractionDigits: 0}) + ' CLP';
+                document.getElementById('resIva').textContent = '$' + data.monto_iva_clp.toLocaleString('es-CL', {minimumFractionDigits: 0}) + ' CLP';
+                document.getElementById('resTotal').textContent = '$' + data.monto_total_clp.toLocaleString('es-CL', {minimumFractionDigits: 0}) + ' CLP';
+                
+                resultadoDiv.classList.add('mostrar');
+                
+            } catch (error) {
+                errorDiv.textContent = error.message;
+                errorDiv.classList.add('mostrar');
+                resultadoDiv.classList.remove('mostrar');
+            }
+        });
+    </script>
+</body>
+</html>
